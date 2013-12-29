@@ -2,11 +2,13 @@ package org.strongme.commtech;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.collections.map.HashedMap;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -36,7 +38,8 @@ public class ExtraCommController {
 		return data;
 	}
 	
-	@RequestMapping(value = "download")  
+	@SuppressWarnings("unchecked")
+	@RequestMapping(value = "download",method=RequestMethod.GET)  
     public ModelAndView download(HttpServletRequest request,  
             HttpServletResponse response) throws Exception {  
 		List<ExtraCommBean> result = extraCommService.getAll() ;
@@ -45,15 +48,14 @@ public class ExtraCommController {
 			dataInList.add(new Object[]{d.getClassname(),d.getComment()});
 		}
         String realName = "学生意见建议.xls";  
-        String contentType = "application/-excel";  
-        try{
-        	DownloadUtil.download(request, response, contentType,  
-                    realName,DownloadUtil.generateExcel(dataInList, new String[]{"班级","建议内容"}, "学生意见建议"));
-        }catch(Exception e) {
-        	e.printStackTrace();
-        }
-        
-        return null;  
+        @SuppressWarnings("rawtypes")
+		Map modelData = new HashedMap();
+        modelData.put("sheetName", realName);
+        modelData.put("headers", new String[]{"班级","建议内容"});
+        modelData.put("data", dataInList);
+        response.setHeader("Content-disposition", "attachment; filename="  
+                + new String(realName.getBytes("utf-8"), "ISO8859-1"));  
+        return new ModelAndView("ExcelView", modelData);  
     }  
 	
 	@RequestMapping(value="/allcount",method=RequestMethod.POST,produces = "application/json")

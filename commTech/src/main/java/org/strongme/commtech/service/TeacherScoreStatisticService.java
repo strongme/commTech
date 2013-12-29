@@ -42,7 +42,7 @@ public class TeacherScoreStatisticService {
 	
 	public List<StudentCommCountBean> cencusCommCount() {
 		List<StudentCommCountBean> result = new ArrayList<StudentCommCountBean>();
-		String sql = "select bb.x '已评教学生数',bb.y '班级',count(ss.studentid) '此班级人数' from student ss,(select dd.x x,classo.classname y,classo.classid z from class classo left join(select aa.studentcountal x, classf.classname y, classf.classid z from class classf, (SELECT count(distinct (a.studentid)) studentcountal,b.classid classid FROM studentcomm a, student b where a.studentid = b.studentid group by b.classid order by b.classid) aa where aa.classid = classf.classid) dd on dd.z=classo.classid) bb where bb.z = ss.classid group by bb.y order by bb.x desc";
+		String sql = "select bb.x '已评教学生数',bb.y '班级',count(ss.studentid) '此班级人数' from student ss inner join (select dd.x x, classo.classname y, classo.classid z from class classo left join (select  aa.studentcountal x, classf.classname y, classf.classid z from class classf, (SELECT count(distinct (a.studentid)) studentcountal, b.classid classid FROM studentcomm a, student b where a.studentid = b.studentid group by b.classid order by b.classid) aa where aa.classid = classf.classid) dd ON dd.z = classo.classid) bb on bb.z = ss.classid group by bb.y order by bb.x desc";
 		result = jdbcTemplate.query(sql, new RowMapper<StudentCommCountBean>() {
 			public StudentCommCountBean mapRow(ResultSet arg0, int arg1)
 					throws SQLException {
